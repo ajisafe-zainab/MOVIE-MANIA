@@ -3,9 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="https://kit.fontawesome.com/49c514cd18.js" crossorigin="anonymous"></script>
+    <title>Movie-Mania</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    
+    <div class="wrapper">
+ <header>
+     <nav>
+                <div class="logo"><h2>MOVIE-MANIA</h2></div>
+                <div class="types">
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Kdrama</a></li>
+                        <li><a href="#">Tv Series</a></li>
+                    </ul>
+                </div>
+     <div class="genre">
+                       
+          <select name="" class="movies genres">
+            <option value="" disabled selected>Movies</option>
+            <option value="type">International</option>
+            <option value="type">Asian</option>
+          </select>
+          
+          <select name="" class="genres">
+            <option value="genre" disabled selected>Genre</option>
+            <option value="genre">Comedy</option>
+            <option value="genre">Action</option>
+            <option value="genre">Animation</option>
+            <option value="genre">Drama</option>
+          </select>
+    </div>
+    <div class="search">
+        <input type="search" name="" class="left-menu-search" placeholder="Search">
+      <i class=" left-menu fa fa-search" aria-hidden="true"></i>
+   </div>
+   
+   <div class="watchlist">
+     <input type="text" name="" class="left-menu-search" placeholder="Add to Watchlist">
+     <i class="add fa-solid fa-plus"></i>
+   </div>
+   <div class="watchlist-displayer"></div>
+   <div class="mode-container">
+    <h4>Mode</h4>
+    <div class="mode">
+        <i class=" black fa-solid fa-moon"></i>
+        <i class="fa-regular fa-sun"></i>
+    </div>
+       </div>
+     </nav>
+  </header>
+        <section class="main">
+            <div class="movies-container"></div>
+        </section>
+
+    </div>
+    <script src="./index.js"></script>
 </body>
 </html>
