@@ -1,64 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://kit.fontawesome.com/49c514cd18.js" crossorigin="anonymous"></script>
-    <title>Movie-Mania</title>
-    <link rel="stylesheet" href="index.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Mania</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <div class="wrapper">
- <header>
-     <nav>
-                <div class="logo"><h2>MOVIE-MANIA</h2></div>
-                <div class="types">
-                    <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Kdrama</a></li>
-                        <li><a href="#">Tv Series</a></li>
-                    </ul>
-                </div>
-     <div class="genre">
-                       
-          <select name="" class="movies genres">
-            <option value="" disabled selected>Movies</option>
-            <option value="type">International</option>
-            <option value="type">Asian</option>
-          </select>
-          
-          <select name="" class="genres">
-            <option value="genre" disabled selected>Genre</option>
-            <option value="genre">Comedy</option>
-            <option value="genre">Action</option>
-            <option value="genre">Animation</option>
-            <option value="genre">Drama</option>
-          </select>
+  <div class="wrapper">
+  <nav>
+    <div class="logo">MOVIE MANIA</div>
+    <div class="types">
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Kdrama</a></li>
+        <li><a href="#">Tv Series</a></li>
+    </ul>
     </div>
-    <div class="search">
-        <input type="search" name="" class="left-menu-search" placeholder="Search">
-      <i class=" left-menu fa fa-search" aria-hidden="true"></i>
-   </div>
-   
-   <div class="watchlist">
-     <input type="text" name="" class="left-menu-search" placeholder="Add to Watchlist">
-     <i class="add fa-solid fa-plus"></i>
-   </div>
-   <div class="watchlist-displayer"></div>
-   <div class="mode-container">
-    <h4>Mode</h4>
-    <div class="mode">
-        <i class=" black fa-solid fa-moon"></i>
-        <i class="fa-regular fa-sun"></i>
-    </div>
-       </div>
-     </nav>
-  </header>
-        <section class="main">
-            <div class="movies-container"></div>
-        </section>
+    <div class="genre">
+            
+    <select name="" class="movies genres">
+    <option value="" disabled selected>Movies</option>
+    <option value="type">International</option>
+    <option value="type">Asian</option>
+    </select>
 
+    <select name="" class="genres">
+    <option value="genre" disabled selected>Genre</option>
+    <option value="genre">Comedy</option>
+    <option value="genre">Action</option>
+    <option value="genre">Animation</option>
+    <option value="genre">Drama</option>
+    </select>
     </div>
-    <script src="./index.js"></script>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search movies by title, release date, or rating...">
+        <div class="autocomplete-suggestions"></div>
+      </div>
+      <button class="watchlist-btn watchlist-toggle">Watchlist</button>
+  </nav>
+
+    <div class="main">
+      <div class="trending-movies">
+        <h2>Trending Movies</h2>
+        <div class="movies-container"></div>
+      </div>
+
+      <div class="movie-details-container" style="display: none;">
+        <div class="movie-details">
+          <div class="movie-poster"></div>
+          <div class="movie-info">
+            <h2 class="movie-title"></h2>
+            <p class="movie-overview"></p>
+            <p class="movie-release-date"></p>
+            <p class="movie-rating"></p>
+            <div class="movie-genres"></div>
+            <div class="movie-cast"></div>
+            <div class="movie-trailers"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <button class="watchlist-toggle">Toggle Watchlist</button> -->
+        <div class="watchlist-container">
+        <h2>My Watchlist</h2>
+        <div class="watchlist-displayer"></div>
+        </div>
+
+        <div class="search-results-count"></div>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
 </body>
 </html>

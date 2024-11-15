@@ -1,3 +1,4 @@
+
 //List of API URLs
 const moviesUrl = ['https://jsonfakery.com/movies/infinite-scroll','https://api.sampleapis.com/movies/comedy','https://dummyapi.online/api/movies'];
 //Function to fetch data from a single URL with error handling
@@ -35,28 +36,18 @@ const serializeMovieData = (moviesArray)=>{
   });
 };
 
-// //Function to fetch and serialize movie data from all URLs
-//  const fetchAllMovies = async () =>{
-//     const moviesData = await Promise.all(moviesUrl.map((url)=>fetchMovieData(url)));
-//     const serializeMovies = serializeMovieData(moviesData);
-//     console.log(moviesData.filter(Boolean)); //Filter out null values from failed requests.
-//     console.log(serializeMovies);
-//     moviesData.forEach(mov =>{
-//         console.log(mov?.slice(0,2));
-//     });
-//  }
-//  //Run the function to fetch and serialize all moviees data 
-//    fetchAllMovies();
-   
 
-//test
-// Function to fetch and serialize movie data from all URLs
+
+// Keep track of all loaded movies
+let allLoadedMovies = []; // Store all movies initially loaded for saerch purpose
+
 const fetchAllMovies = async () => {
     const moviesData = await Promise.all(moviesUrl.map((url) => fetchMovieData(url)));
-    const serializeMovies = serializeMovieData(moviesData);
+    const serializedMovies = serializeMovieData(moviesData);
     console.log(moviesData.filter(Boolean)); // Filter out null values from failed requests.
-    console.log(serializeMovies);
-    return serializeMovies; // Return the serialized movie data
+    console.log(serializedMovies);
+    allLoadedMovies = serializedMovies; // Store all loaded movies
+    return serializedMovies;
 };
 
 
@@ -108,130 +99,214 @@ function moviesRenderer(lists){
   );
 };
 
-
-// Run the function to fetch and serialize all movie data
 document.addEventListener("DOMContentLoaded", async () => {
     const listOfMovies = await fetchAllMovies();
     if (listOfMovies) {
-        moviesRenderer(listOfMovies); // Pass listOfMovies to moviesRenderer
+        moviesRenderer(listOfMovies);
+        implementSearch(); // Initialize search functionality
     } else {
         console.error('Failed to load movie data.');
+    }
+
+    renderWatchlist();
+    
+    // Add watchlist toggle button functionality if it exists
+    const watchlistToggleBtn = document.querySelector('.watchlist-toggle');
+    if (watchlistToggleBtn) {
+        watchlistToggleBtn.addEventListener('click', () => {
+            const watchlistContainer = document.querySelector('.watchlist-container');
+            if (watchlistContainer) {
+                const isVisible = watchlistContainer.style.display !== 'none';
+                watchlistContainer.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) {
+                    renderWatchlist(); // Update watchlist when showing
+                }
+            }
+        });
     }
 });
 
 
-//   document.addEventListener("DOMContentLoaded", async()=>{
-//   const listOfMovies = await fetchAllMovies();
-//     (listOfMovies)
-//     // if(listOfMovies){
-//     //   moviesRenderer(listOfMovies);
-//     // }
-//     // // else{
-//     // //   console.error('Failed to load movie data.')
-//     // // }
-//    }
-//   );
 
+// Initialize watchlist from localStorage or create empty array
+let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
 
-  //WATCHLIST
-  let watchlistDisplayer = document.querySelector('.watchlist-displayer');
-  let watchlist = document.querySelector('.watchlist');
-//   let watch = document.querySelector('.main');
- 
-  let sign = document.querySelector('.add');
-  sign.addEventListener('click',watcher);
-
-
-
-document.addEventListener('DOMContentLoaded',loadWatchlist);
-function watcher(movie){
-    // e.preventDefault();
-    let enter = document.querySelector('input');
-    let display = document.querySelector('.watchlist-displayer');
-
-    let wrap = document.createElement('div');
-    wrap.classList.add('container');  
-
-    if(enter.value ===""){
-        alertMessage('Enter movie to add to watchlist','white')
-    }
-    else{
-        saveToLS(movie);
-        alertMessage('Movies added to watchlist successfully','pink');
-    }
-
-    let tag = document.createElement('li');
-    tag.classList.add('val');  
-    tag.textContent = enter.value;
-    // tag.textContent = '';
-    
-    let cancel = document.createElement('p');
-    cancel.classList.add('canceler');
-    cancel.textContent = 'X';
-
-   wrap.appendChild(tag);
-   wrap.appendChild(cancel);
-   display.appendChild(wrap);
-
-}
-watchlistDisplayer.addEventListener('click',removal);
-
-function removal(element){
-    if(element.target.classList.contains('deleter')){
-        element.target.parentElement.remove();
-        alertMessage('movies removed','blue');
-        //To remove from the localstorage
-        removeFromLS(element.target.parentElement.textContent.slice(0,-1));
-    }
-}
-//A customised alert box
-function alertMessage(message,color){
-    let paragraph = document.createElement('p');
-    paragraph.className = 'message-p';
-    paragraph.style.padding = " 5px 5px";
-    paragraph.style.backgroundColor = color;
-    paragraph.style.color = '#fff';
-    paragraph.textContent = message;
-    paragraph.style.borderRadius = '10px';
-    paragraph.style.textAlign = 'center'
-    paragraph.style.width = '50%'
-    watch.insertAdjacentElement('beforebegin',paragraph);
-    setTimeout(() =>{
-        document.querySelector('.message-p').remove();
-    },1000)
+// Function to save watchlist to localStorage
+function saveWatchlist() {
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
 }
 
-//LOcAL STORAGE
-function loadWatchlist(){
-    let movies = loadLS();
-    movies.forEach(element =>{
-        watcher(element);
+// Toggle movie in watchlist
+function toggleWatchlist(movie) {
+    const index = watchlist.findIndex(item => item.id === movie.id);
+    if (index === -1) {
+        // Add to watchlist
+        watchlist.push(movie);
+        saveWatchlist();
+        return true;
+    } else {
+        // Remove from watchlist
+        watchlist.splice(index, 1);
+        saveWatchlist();
+        return false;
+    }
+}
+
+// Check if movie is in watchlist
+function isInWatchlist(movieId) {
+    return watchlist.some(movie => movie.id === movieId);
+}
+
+// Render watchlist
+function renderWatchlist() {
+    const watchlistContainer = document.querySelector('.watchlist-displayer');
+    if (!watchlistContainer) return;
+
+    watchlistContainer.innerHTML = '';
+
+    if (watchlist.length === 0) {
+        watchlistContainer.innerHTML = '<p>Your watchlist is empty</p>';
+        return;
+    }
+
+    watchlist.forEach(movie => {
+        const movieItem = document.createElement('div');
+        movieItem.classList.add('watchlist-item');
+        
+        movieItem.innerHTML = `
+            <div class="watchlist-movie-info">
+                <img src="${movie.image || '/placeholder-image.jpg'}" 
+                     alt="${movie.title}" 
+                     class="watchlist-movie-image"
+                     onerror="this.src='/placeholder-image.jpg'">
+                <div class="watchlist-movie-details">
+                    <h3>${movie.title}</h3>
+                    <p>Rating: ${movie.rating || 'N/A'}</p>
+                    ${movie.releaseDate ? `<p>Release Date: ${movie.releaseDate}</p>` : ''}
+                </div>
+            </div>
+            <button class="remove-from-watchlist" data-movie-id="${movie.id}">
+                Remove
+            </button>
+        `;
+
+        watchlistContainer.appendChild(movieItem);
+    });
+
+    // Add event listeners to remove buttons
+    document.querySelectorAll('.remove-from-watchlist').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const movieId = e.target.dataset.movieId;
+            const movieToRemove = watchlist.find(m => m.id === movieId);
+            if (movieToRemove) {
+                toggleWatchlist(movieToRemove);
+                renderWatchlist();
+                // Update the main movie list UI if it exists
+                updateMovieListUI();
+            }
+        });
     });
 }
-//To load localstorage
-function loadLS(){
-    let movies;
-    if(localStorage.getItem('movie') === null){
-     movies = [];
-    }
-    else{
-        movies = JSON.parse(localStorage.getItem('movie'));
-    }
-    return movies;
-}
-//To save to localstorage
-function saveToLS(movie){
-    let movies = loadLS();
-    movies.push(movie);
-    localStorage.setItem('movie', JSON.stringify(movies));
-}
-//To remove from localstorage
-function removeFromLS(movie){
-    let movies = loadLS();
-    movies.forEach((mv,index)=>{
-        if(mv === movie){
-            movies.splice(index,1);
+
+// Update the main movies list UI to reflect watchlist status
+function updateMovieListUI() {
+    const movieBoxes = document.querySelectorAll('.movie-box');
+    movieBoxes.forEach(movieBox => {
+        const movieId = movieBox.dataset.movieId;
+        const watchlistButton = movieBox.querySelector('.watchlist-button');
+        if (watchlistButton) {
+            watchlistButton.textContent = isInWatchlist(movieId) 
+                ? 'Remove from Watchlist' 
+                : 'Add to Watchlist';
+            watchlistButton.classList.toggle('in-watchlist', isInWatchlist(movieId));
         }
-    })
-    localStorage.setItem('movie', JSON.stringify(movies));
+    });
 }
+
+// Update the moviesRenderer function to include watchlist functionality
+function moviesRenderer(lists) {
+    const moviesContainer = document.querySelector('.movies-container');
+    if (!moviesContainer) return;
+    
+    moviesContainer.innerHTML = '';
+    
+    lists.forEach((movie) => {
+        const movieBox = document.createElement('div');
+        movieBox.classList.add('movie-box');
+        movieBox.dataset.movieId = movie.id; // Add movie ID to the element
+        
+        movieBox.innerHTML = `
+            <img class="movie-image" 
+                 src="${movie.image || '/placeholder-image.jpg'}" 
+                 alt="${movie.title}"
+                 onerror="this.src='/placeholder-image.jpg'">
+            <h2 class="movie-id">ID: ${movie.id || 'N/A'}</h2>
+            <h2 class="movie-title">${movie.title}</h2>
+            ${movie.imdbURL ? `<a class="movie-url" href="${movie.imdbURL}" target="_blank">IMDB</a>` : ''}
+            ${movie.releaseDate ? `<h4 class="movie-date">Release Date: ${movie.releaseDate}</h4>` : ''}
+            <p class="movie-rating">Rating: ${movie.rating || 'N/A'}</p>
+            <button class="watchlist-button ${isInWatchlist(movie.id) ? 'in-watchlist' : ''}">
+                ${isInWatchlist(movie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
+            </button>
+        `;
+        
+        // Add watchlist toggle functionality
+        const watchlistButton = movieBox.querySelector('.watchlist-button');
+        watchlistButton.addEventListener('click', () => {
+            const isNowInWatchlist = toggleWatchlist(movie);
+            watchlistButton.textContent = isNowInWatchlist 
+                ? 'Remove from Watchlist' 
+                : 'Add to Watchlist';
+            watchlistButton.classList.toggle('in-watchlist', isNowInWatchlist);
+            renderWatchlist(); // Update the watchlist display
+        });
+        
+        moviesContainer.appendChild(movieBox);
+    });
+}
+
+
+// Search functionality
+function implementSearch() {
+    const searchInput = document.querySelector('.search-input');
+    
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            // If search is empty, show all movies
+            moviesRenderer(allLoadedMovies);
+            return;
+        }
+
+        // Filter movies based on search term
+        const filteredMovies = allLoadedMovies.filter(movie => {
+            const searchableTerms = [
+                movie.title,
+                movie.releaseDate,
+                movie.rating?.toString()
+            ].filter(Boolean); // Remove null/undefined values
+
+            return searchableTerms.some(term => 
+                term.toLowerCase().includes(searchTerm)
+            );
+        });
+
+        // Render filtered results
+        moviesRenderer(filteredMovies);
+
+        // Update UI to show search results count
+        updateSearchResultsCount(filteredMovies.length);
+    });
+}
+
+// Show how many results were found
+function updateSearchResultsCount(count) {
+    const searchResultsCount = document.querySelector('.search-results-count');
+    if (searchResultsCount) {
+        searchResultsCount.textContent = count === 0 
+            ? 'No movies found' 
+            : `Found ${count} movie${count === 1 ? '' : 's'}`;
+    }
+}
+
